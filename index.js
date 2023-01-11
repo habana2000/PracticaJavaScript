@@ -90,6 +90,7 @@ class Board {
         let orientacion = 0
 
         do {
+            noColisiona = true
             // Buscamos orientación y coordenadas a probar
             orientacion = Math.floor(Math.random() * 2)
             // orientacion = 0 --> Horizontal
@@ -107,7 +108,9 @@ class Board {
             let workRow = fila
             let workColumn = columna
             for (let i = 0; i < longitud; i++) {
-                noColisiona = noColisiona & (this.squares[(workRow * 10) + workColumn] == NADA)
+                if (this.squares[(workRow * 10) + workColumn] === BARCO) {
+                    noColisiona = false
+                }
                 if (orientacion === 0) {
                     workColumn++
                 } else {
@@ -118,7 +121,6 @@ class Board {
         } while (noColisiona == false)
         
         // registro el barco en el tablero
-        console.log(`B - Orientación: ${orientacion} - fila: ${fila} - columna: ${columna}`)
         for (let i = 0; i < longitud; i++) {
             this.squares[(fila * 10) + columna] = BARCO
             if (orientacion === 0) {
@@ -143,9 +145,8 @@ const numBarcos = [0,3,3,2,1,1] // la posición en el array es la longitud, y el
 for (let i = 0; i < numBarcos.length ; i++) {
     if (numBarcos[i] > 0) {
         for (let j= 0 ; j < numBarcos[i]; j++) {
-            // boards[0].colocarBarco(i) // Player A --> Own Board
-            // boards[2].colocarBarco(i) // Player B --> Own Board
-            console.log(`Num Barcos: ${numBarcos} - i: ${i} - j: ${j}`)
+            boards[0].colocarBarco(i) // Player A --> Own Board
+            boards[2].colocarBarco(i) // Player B --> Own Board
         }    
     }
 }
@@ -164,7 +165,13 @@ for (let i = 0; i < numBarcos.length ; i++) {
 // Presentar resultados 
 
 console.log ('final')
+/*
+console.log('Barco 1')
 boards[0].colocarBarco(3)
+console.log('Barco 2')
 boards[0].colocarBarco(3)
+console.log('Barco 3')
 boards[0].colocarBarco(3)
+*/
 boards[0].paint()
+boards[2].paint()
