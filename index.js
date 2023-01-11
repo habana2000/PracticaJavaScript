@@ -5,7 +5,6 @@
 // ... Colocar lo barcos
 // Jugar
 // Mientras a ambos les quedan barcos por hundir y quedan disparos por hacer
-// ... Mientras no hay cambio de turno
 // ... ... Disparar
 // ... ... Si agua
 // ... ... ... Cambio de turno
@@ -28,10 +27,14 @@ function printShoot (round, player, shootNumber, shootPlace, result) {
     console.log (`Shoot #${shootNumber} pointing to ${shootPlace} : ${result}`)
 }
 
-function cambioTurno (shift) {
-    if (shift = 'A') {
+function cambioTurno (turno) {
+    if (turno = 'A') {
+        ownBoard = 2
+        enemyBoard = 3
         return 'B'
     } else {
+        ownBoard = 0
+        enemyBoard = 1
         return 'A'
     }
 }
@@ -41,6 +44,7 @@ function cambioTurno (shift) {
 // ... Generar tableros
 const COLS = 10
 const ROWS = 10
+const MAXDISPAROS = 100
 
 const NADA = '  '
 const AGUA = '💧'
@@ -48,7 +52,9 @@ const TOCADO = '💥'
 const HUNDIDO = '🟥'
 const BARCO = '🟨'
 
-let shift = 'A'
+let turno = 'A' // Empezamos por el jugador 'A'
+let ownBoard = 0
+let enemyBoard = 1
 
 class Board {
     constructor(player, own) {
@@ -58,6 +64,8 @@ class Board {
         for (let i=0 ; i < COLS * ROWS ; i++) {
             this.squares.push (NADA)
         }
+        this.estrategia = []      // esta es la memoria para la estrategia en función del resultado del disparo anterior
+        this.torpedos = MAXDISPAROS
     }
 
     paint() {
@@ -131,6 +139,11 @@ class Board {
         }    
 
     }
+
+    proposeShot () {
+        
+    }
+
 }
 
 
@@ -154,24 +167,29 @@ for (let i = 0; i < numBarcos.length ; i++) {
 
 
 // Jugar
+
+
 // Mientras a ambos les quedan barcos por hundir y quedan disparos por hacer
-// ... Mientras no hay cambio de turno
-// ... ... Disparar
-// ... ... Si agua
-// ... ... ... Cambio de turno
-// ... ... Sino
-// ... ... ... Ver si está hundido
-// ... ... ... Preparar estrategia del próximo disparo
+do {
+    let shot = []
+    // ... ... Disparar
+    if (boards[ownBoard].estrategia.length > 0) {
+        let shot = boards[ownBoard].estrategia.shift()
+    } else {
+        let shot = boards[enemyBoard].proposeShot()
+    }
+
+    // ... ... Si agua
+    // ... ... ... Cambio de turno
+    turno = cambioTurno(turno)
+    // ... ... Sino
+    // ... ... ... Ver si está hundido
+    // ... ... ... Preparar estrategia del próximo disparo
+
+} while (false)
 // Presentar resultados 
 
 console.log ('final')
-/*
-console.log('Barco 1')
-boards[0].colocarBarco(3)
-console.log('Barco 2')
-boards[0].colocarBarco(3)
-console.log('Barco 3')
-boards[0].colocarBarco(3)
-*/
+
 boards[0].paint()
 boards[2].paint()
