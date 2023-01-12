@@ -27,8 +27,8 @@ function printShoot (round, player, shootNumber, shootPlace, result) {
     console.log (`Shoot #${shootNumber} pointing to ${shootPlace} : ${result}`)
 }
 
-function cambioTurno (turno) {
-    if (turno = 'A') {
+function cambioTurno (turnoParam) {
+    if (turnoParam === 'A') {
         ownBoard = 2
         enemyBoard = 3
         return 'B'
@@ -37,6 +37,7 @@ function cambioTurno (turno) {
         enemyBoard = 1
         return 'A'
     }
+    // boards[ownBoard].turno++
 }
 
 
@@ -52,10 +53,6 @@ const TOCADO = '💥'
 const HUNDIDO = '🟥'
 const BARCO = '🟨'
 
-let turno = 'A' // Empezamos por el jugador 'A'
-let ownBoard = 0
-let enemyBoard = 1
-
 class Board {
     constructor(player, own) {
         this.player = player
@@ -66,6 +63,7 @@ class Board {
         }
         this.estrategia = []      // esta es la memoria para la estrategia en función del resultado del disparo anterior
         this.torpedos = MAXDISPAROS
+        this.turno = 0
     }
 
     paint() {
@@ -141,17 +139,27 @@ class Board {
     }
 
     proposeShot () {
-        
+        let i = Math.floor(Math.random() * this.squares.length)
+        // Recorro el tablero a partir de una posición aleatoria buscando un lugar donde no haya disparado
+        do {
+            i = (i + 1) % this.squares.length
+        } while (this.squares[i] != NADA);
+        return i
     }
 
 }
-
 
 const boards = []
 boards.push (new Board('A', true))   // Posición 0
 boards.push (new Board('A', false))  // Posición 1
 boards.push (new Board('B', true))   // Posición 2
 boards.push (new Board('B', false))  // Posición 3
+
+// Inicialización de variables
+let turnoActual = 'A' // Empezamos por el jugador 'A'
+boards[0].turno = 1
+let ownBoard = 0
+let enemyBoard = 1
 
 // ... Colocar lo barcos
 const numBarcos = [0,3,3,2,1,1] // la posición en el array es la longitud, y el valor el número de barcos de esa longitud 
@@ -164,32 +172,69 @@ for (let i = 0; i < numBarcos.length ; i++) {
     }
 }
 
-
+// Mostrar tableros iniciales
+printHeading('The Battleship simulator starts')
+boards[0].paint()
+boards[2].paint()
 
 // Jugar
-
+printHeading('The game starts')
 
 // Mientras a ambos les quedan barcos por hundir y quedan disparos por hacer
+let continuaJuego = true
 do {
-    let shot = []
+    let shot = 0
     // ... ... Disparar
     if (boards[ownBoard].estrategia.length > 0) {
-        let shot = boards[ownBoard].estrategia.shift()
+        shot = boards[ownBoard].estrategia.shift()
     } else {
-        let shot = boards[enemyBoard].proposeShot()
+        shot = boards[enemyBoard].proposeShot()
     }
+
+    if (boards[(ownBoard + 2) % 4].squares[shot] === BARCO) {
+        // TOCADO 
+        boards[(ownBoard + 2) % 4].squares[shot] = TOCADO
+        boards[enemyBoard].squares[shot] = TOCADO
+    } else {
+        // AGUA
+        boards[(ownBoard + 2) % 4].squares[shot] = AGUA
+        boards[enemyBoard].squares[shot] = AGUA
+        boards[(ownBoard + 2) % 4].turno++
+    }
+    boards[ownBoard].torpedos--
 
     // ... ... Si agua
     // ... ... ... Cambio de turno
-    turno = cambioTurno(turno)
     // ... ... Sino
     // ... ... ... Ver si está hundido
     // ... ... ... Preparar estrategia del próximo disparo
 
-} while (false)
+    // Imprimir tableros
+    printHeading(`Round ${boards[ownBoard].turno} for player ${boards[ownBoard].player}`)
+    console.log(`Shot ${MAXDISPAROS-boards[ownBoard].torpedos} ponting to ${shot}: ${boards[enemyBoard].squares[shot]}`)
+    boards[ownBoard].paint()
+    boards[enemyBoard].paint()
+    
+    // Ver si se acaba el juego
+    continuaJuego = true
+    if (boards[ownBoard].torpedos === 0) {
+        // se me acabaron los disparos
+        continuaJuego = false
+    } else if (boards[ownBoard].squares.filter(val => val === BARCO).length === 0) {
+        // No me queda ningún barco a flote
+        continuaJuego = false
+    } else if (boards[(ownBoard + 2) % 4].squares.filter(val => val === BARCO).length === 0) {
+        // No le queda ningún barco a flote al enemigo
+        continuaJuego = false
+    } else {
+        // Miramos si hay cambio de turno
+        if (boards[enemyBoard].squares[shot] === AGUA) {
+            turnoActual = cambioTurno(turnoActual)
+        }
+    }
+
+} while (continuaJuego)
 // Presentar resultados 
 
-console.log ('final')
 
-boards[0].paint()
-boards[2].paint()
+
