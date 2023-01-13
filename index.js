@@ -37,7 +37,6 @@ function cambioTurno (turnoParam) {
         enemyBoard = 1
         return 'A'
     }
-    // boards[ownBoard].turno++
 }
 
 
@@ -45,7 +44,7 @@ function cambioTurno (turnoParam) {
 // ... Generar tableros
 const COLS = 10
 const ROWS = 10
-const MAXDISPAROS = 100
+const MAXDISPAROS = 50
 
 const NADA = '  '
 const AGUA = '💧'
@@ -150,6 +149,11 @@ class Board {
         return i
     }
 
+    numCasillasVivas () {
+        let i = this.squares.filter (val => val === BARCO).length
+        return i
+    }
+
 }
 
 const boards = []
@@ -221,7 +225,9 @@ do {
 
     // Imprimir tableros
     printHeading(`Round ${boards[ownBoard].turno} for player ${boards[ownBoard].player}`)
-    console.log(`Shot ${MAXDISPAROS-boards[ownBoard].torpedos} ponting to ${shot}: ${boards[enemyBoard].squares[shot]}`)
+    let shotRow = Math.floor (shot / 10)
+    let shotColumn = shot % 10
+    console.log(`Shot ${MAXDISPAROS-boards[ownBoard].torpedos} ponting to ${shotRow}-${shotColumn}: ${boards[enemyBoard].squares[shot]}`)
     if (sunk) {
         console.log('🎯 Sunk Ship! 👏👏👏')
     }
@@ -231,8 +237,8 @@ do {
     
     // Ver si se acaba el juego
     continuaJuego = true
-    if (boards[ownBoard].torpedos === 0) {
-        // se me acabaron los disparos
+    if ((boards[ownBoard].torpedos === 0) && (boards[(ownBoard + 2) % 4].torpedos === 0)) {
+        // Se les terminaron los torpedos a ambos jugadores
         continuaJuego = false
     } else if (boards[ownBoard].squares.filter(val => val === BARCO).length === 0) {
         // No me queda ningún barco a flote
@@ -242,13 +248,32 @@ do {
         continuaJuego = false
     } else {
         // Miramos si hay cambio de turno
-        if (boards[enemyBoard].squares[shot] === AGUA) {
-            turnoActual = cambioTurno(turnoActual)
+        if ((boards[enemyBoard].squares[shot] === AGUA) || (boards[ownBoard].torpedos === 0)) {
+            if (boards[(ownBoard + 2 ) % 4].torpedos > 0) {
+                // Solo cambio el turno si al otro jugador todavía le quedan torpedos
+                turnoActual = cambioTurno(turnoActual)
+            }
         }
     }
 
 } while (continuaJuego)
+
 // Presentar resultados 
+// gana el jugador que más casillas tenga sin tocar
+let resultado = ''
+i = boards[0].numCasillasVivas() - boards[2].numCasillasVivas()
+if (i === 0) {
+    resultado = `Empate A y B, con ${boards[0].numCasillasVivas()} casillas`
+} else if (i > 0) {
+    resultado = `🏆 Ganador A, con ${boards[0].numCasillasVivas()}, frente a ${boards[2].numCasillasVivas()} de B`
+} else {
+    resultado = `🏆 Ganador B, con ${boards[2].numCasillasVivas()}, frente a ${boards[0].numCasillasVivas()} de A`
+}
+
+printHeading(resultado)
+console.log('Final boards:')
+boards[0].paint()
+boards[2].paint()
 
 
 
