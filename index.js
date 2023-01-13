@@ -45,7 +45,7 @@ function cambioTurno (turnoParam) {
 // ... Generar tableros
 const COLS = 10
 const ROWS = 10
-const MAXDISPAROS = 100
+const MAXDISPAROS = 10
 
 const NADA = '  '
 const AGUA = '💧'
@@ -172,6 +172,7 @@ for (let i = 0; i < numBarcos.length ; i++) {
     }
 }
 
+
 // Mostrar tableros iniciales
 printHeading('The Battleship simulator starts')
 boards[0].paint()
@@ -212,6 +213,7 @@ do {
     // Imprimir tableros
     printHeading(`Round ${boards[ownBoard].turno} for player ${boards[ownBoard].player}`)
     console.log(`Shot ${MAXDISPAROS-boards[ownBoard].torpedos} ponting to ${shot}: ${boards[enemyBoard].squares[shot]}`)
+    console.log(`Remaining shots: ${boards[ownBoard].torpedos}`)
     boards[ownBoard].paint()
     boards[enemyBoard].paint()
     
