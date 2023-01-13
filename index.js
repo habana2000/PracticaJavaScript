@@ -45,7 +45,7 @@ function cambioTurno (turnoParam) {
 // ... Generar tableros
 const COLS = 10
 const ROWS = 10
-const MAXDISPAROS = 10
+const MAXDISPAROS = 100
 
 const NADA = '  '
 const AGUA = '💧'
@@ -58,8 +58,10 @@ class Board {
         this.player = player
         this.own = own
         this.squares = []
+        this.ships = []
         for (let i=0 ; i < COLS * ROWS ; i++) {
             this.squares.push (NADA)
+            this.ships.push('')
         }
         this.estrategia = []      // esta es la memoria para la estrategia en función del resultado del disparo anterior
         this.torpedos = MAXDISPAROS
@@ -86,7 +88,7 @@ class Board {
         console.log(SEPARADOR)
     }
 
-    colocarBarco (longitud) {
+    colocarBarco (idBarco,longitud) {
         
         // mientras no colisiona con otros busco posición
         
@@ -129,6 +131,7 @@ class Board {
         // registro el barco en el tablero
         for (let i = 0; i < longitud; i++) {
             this.squares[(fila * 10) + columna] = BARCO
+            this.ships[(fila * 10) + columna] = idBarco
             if (orientacion === 0) {
                 columna++
             } else {
@@ -163,14 +166,17 @@ let enemyBoard = 1
 
 // ... Colocar lo barcos
 const numBarcos = [0,3,3,2,1,1] // la posición en el array es la longitud, y el valor el número de barcos de esa longitud 
-for (let i = 0; i < numBarcos.length ; i++) {
+let idBarco = 0
+for (let i = numBarcos.length; i > 0 ; --i) { // Recorremos de mayor a menor, para que sea más fácil colocarlos
     if (numBarcos[i] > 0) {
         for (let j= 0 ; j < numBarcos[i]; j++) {
-            boards[0].colocarBarco(i) // Player A --> Own Board
-            boards[2].colocarBarco(i) // Player B --> Own Board
+            boards[0].colocarBarco(idBarco,i) // Player A --> Own Board
+            boards[2].colocarBarco(idBarco,i) // Player B --> Own Board
+            idBarco++
         }    
     }
 }
+
 
 
 // Mostrar tableros iniciales
@@ -185,6 +191,7 @@ printHeading('The game starts')
 let continuaJuego = true
 do {
     let shot = 0
+    let sunk = false
     // ... ... Disparar
     if (boards[ownBoard].estrategia.length > 0) {
         shot = boards[ownBoard].estrategia.shift()
@@ -196,6 +203,14 @@ do {
         // TOCADO 
         boards[(ownBoard + 2) % 4].squares[shot] = TOCADO
         boards[enemyBoard].squares[shot] = TOCADO
+        // Miramos si es hunido
+        idBarco = boards[(ownBoard + 2) % 4].ships[shot] 
+        if (boards[(ownBoard + 2) % 4].ships.filter(val => val == idBarco).length == 1) {
+            // sólo quedaba esta casilla por tocar --> Hundido
+            sunk = true
+        } 
+        boards[(ownBoard + 2) % 4].ships[shot] = ''
+
     } else {
         // AGUA
         boards[(ownBoard + 2) % 4].squares[shot] = AGUA
@@ -204,15 +219,12 @@ do {
     }
     boards[ownBoard].torpedos--
 
-    // ... ... Si agua
-    // ... ... ... Cambio de turno
-    // ... ... Sino
-    // ... ... ... Ver si está hundido
-    // ... ... ... Preparar estrategia del próximo disparo
-
     // Imprimir tableros
     printHeading(`Round ${boards[ownBoard].turno} for player ${boards[ownBoard].player}`)
     console.log(`Shot ${MAXDISPAROS-boards[ownBoard].torpedos} ponting to ${shot}: ${boards[enemyBoard].squares[shot]}`)
+    if (sunk) {
+        console.log('🎯 Sunk Ship! 👏👏👏')
+    }
     console.log(`Remaining shots: ${boards[ownBoard].torpedos}`)
     boards[ownBoard].paint()
     boards[enemyBoard].paint()
