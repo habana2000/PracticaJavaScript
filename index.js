@@ -48,7 +48,7 @@ const HUNDIDO = '🟥'
 const BARCO = '🟨'
 
 class Board {
-    constructor(player, own) {
+    constructor(player, own, conEstrategia = false) {
         this.player = player
         this.own = own
         this.squares = []
@@ -57,6 +57,7 @@ class Board {
             this.squares.push (NADA)
             this.ships.push('')
         }
+        this.conEstrategia = conEstrategia
         this.estrategia = []      // esta es la memoria para la estrategia en función del resultado del disparo anterior
         this.torpedos = MAXDISPAROS
         this.turno = 0
@@ -153,10 +154,10 @@ class Board {
 }
 
 const boards = []
-boards.push (new Board('A', true))   // Posición 0
-boards.push (new Board('A', false))  // Posición 1
-boards.push (new Board('B', true))   // Posición 2
-boards.push (new Board('B', false))  // Posición 3
+boards.push (new Board('A', true, false))   // Posición 0
+boards.push (new Board('A', false, false))  // Posición 1
+boards.push (new Board('B', true, true))   // Posición 2
+boards.push (new Board('B', false, false))  // Posición 3
 
 // Inicialización de variables
 let turnoActual = 'A' // Empezamos por el jugador 'A'
@@ -193,7 +194,7 @@ do {
     let shot = 0
     let sunk = false
     // ... ... Disparar
-    if (boards[ownBoard].estrategia.length > 0) {
+    if (boards[ownBoard].conEstrategia && boards[ownBoard].estrategia.length > 0) {
         shot = boards[ownBoard].estrategia.shift()
     } else {
         shot = boards[enemyBoard].proposeShot()
@@ -208,8 +209,25 @@ do {
         if (boards[(ownBoard + 2) % 4].ships.filter(val => val == idBarco).length == 1) {
             // sólo quedaba esta casilla por tocar --> Hundido
             sunk = true
+            boards[ownBoard].estrategia = []  // Limpiamos el buffer de posibles disparos
         } 
         boards[(ownBoard + 2) % 4].ships[shot] = ''
+        // Actualizamos la estrategia
+        if (boards[ownBoard].conEstrategia) {
+            boards[ownBoard].estrategia = []
+            if (((shot - 10) >= 0) && (boards[enemyBoard].squares[shot-10] === NADA)) {
+                boards[ownBoard].estrategia.push(shot - 10)
+            } 
+            if ((shot - 1) >= 0 && (boards[enemyBoard].squares[shot-1] === NADA)) {
+                boards[ownBoard].estrategia.push(shot - 1)
+            } 
+            if ((shot + 10) <= 99 && (boards[enemyBoard].squares[shot+10] === NADA)) {
+                boards[ownBoard].estrategia.push(shot + 10)
+            } 
+            if ((shot + 1) <= 99 && (boards[enemyBoard].squares[shot+1] === NADA)) {
+                boards[ownBoard].estrategia.push(shot + 1)
+            } 
+        }
 
     } else {
         // AGUA
