@@ -39,7 +39,7 @@ function cambioTurno (turnoParam) {
 // ... Generar tableros
 const COLS = 10
 const ROWS = 10
-const MAXDISPAROS = 50 // Máximo 100, pero aunque se indiquen más nop pasa nada porque parará al eliminar todos los barcos del tablero
+const MAXDISPAROS = 100 // Máximo 100, pero aunque se indiquen más nop pasa nada porque parará al eliminar todos los barcos del tablero
 
 const NADA = '  '
 const AGUA = '💧'
@@ -156,7 +156,7 @@ class Board {
 const boards = []
 boards.push (new Board('A', true, false))   // Posición 0
 boards.push (new Board('A', false, false))  // Posición 1
-boards.push (new Board('B', true, true))   // Posición 2
+boards.push (new Board('B', true, true))   // Posición 2 - A este le damos inteligencia: B = Inteligente (A no)
 boards.push (new Board('B', false, false))  // Posición 3
 
 // Inicialización de variables
