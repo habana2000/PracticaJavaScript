@@ -22,11 +22,6 @@ function printHeading (text) {
     console.log (`====${pad}====`)
 }
 
-function printShoot (round, player, shootNumber, shootPlace, result) {
-    console.log (`Round ${round} for ${player}`)
-    console.log (`Shoot #${shootNumber} pointing to ${shootPlace} : ${result}`)
-}
-
 function cambioTurno (turnoParam) {
     if (turnoParam === 'A') {
         ownBoard = 2
@@ -44,7 +39,7 @@ function cambioTurno (turnoParam) {
 // ... Generar tableros
 const COLS = 10
 const ROWS = 10
-const MAXDISPAROS = 50
+const MAXDISPAROS = 50 // Máximo 100, pero aunque se indiquen más nop pasa nada porque parará al eliminar todos los barcos del tablero
 
 const NADA = '  '
 const AGUA = '💧'
@@ -82,7 +77,8 @@ class Board {
             for (let j=0; j<COLS; j++) {
                 printableRow = printableRow + this.squares[i*COLS + j] 
             }
-            console.log(`| ${i} |` , printableRow, '|')
+            // con filas 0..9 --> console.log(`| ${i} |` , printableRow, '|')
+            console.log(`| ${String.fromCharCode(i+65)} |` , printableRow, '|')
         }
         console.log(SEPARADOR)
     }
@@ -227,7 +223,7 @@ do {
     printHeading(`Round ${boards[ownBoard].turno} for player ${boards[ownBoard].player}`)
     let shotRow = Math.floor (shot / 10)
     let shotColumn = shot % 10
-    console.log(`Shot ${MAXDISPAROS-boards[ownBoard].torpedos} ponting to ${shotRow}-${shotColumn}: ${boards[enemyBoard].squares[shot]}`)
+    console.log(`Shot ${MAXDISPAROS-boards[ownBoard].torpedos} ponting to ${String.fromCharCode(shotRow+65)}-${shotColumn}: ${boards[enemyBoard].squares[shot]}`)
     if (sunk) {
         console.log('🎯 Sunk Ship! 👏👏👏')
     }
@@ -263,11 +259,11 @@ do {
 let resultado = ''
 i = boards[0].numCasillasVivas() - boards[2].numCasillasVivas()
 if (i === 0) {
-    resultado = `Empate A y B, con ${boards[0].numCasillasVivas()} casillas`
+    resultado = `Empate A y B, con ${boards[0].numCasillasVivas()} casillas pendientes`
 } else if (i > 0) {
-    resultado = `🏆 Ganador A, con ${boards[0].numCasillasVivas()}, frente a ${boards[2].numCasillasVivas()} de B`
+    resultado = `Ganador A 🏆, con ${boards[0].numCasillasVivas()} casillas pendientes, frente a ${boards[2].numCasillasVivas()} de B`
 } else {
-    resultado = `🏆 Ganador B, con ${boards[2].numCasillasVivas()}, frente a ${boards[0].numCasillasVivas()} de A`
+    resultado = `Ganador B 🏆, con ${boards[2].numCasillasVivas()} casillas pendientes, frente a ${boards[0].numCasillasVivas()} de A`
 }
 
 printHeading(resultado)
