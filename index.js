@@ -39,12 +39,11 @@ function cambioTurno (turnoParam) {
 // ... Generar tableros
 const COLS = 10
 const ROWS = 10
-const MAXDISPAROS = 100 // Máximo 100, pero aunque se indiquen más nop pasa nada porque parará al eliminar todos los barcos del tablero
+const MAXDISPAROS = 50 // Máximo 100, pero aunque se indiquen más nop pasa nada porque parará al eliminar todos los barcos del tablero
 
 const NADA = '  '
 const AGUA = '💧'
 const TOCADO = '💥'
-const HUNDIDO = '🟥'
 const BARCO = '🟨'
 
 class Board {
